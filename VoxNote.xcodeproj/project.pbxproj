@@ -1,0 +1,416 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		10EAB7659C65A47EA419EBC9 /* NoteDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BDAC3F62372DF63D0FCB050 /* NoteDetailView.swift */; };
+		1A2F73118D8E8AE24CD51F8C /* TranscriptionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C66A58592478B4F71FC57A05 /* TranscriptionService.swift */; };
+		26E62ECCE5E989FDD6B218C3 /* VoxNoteApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33CC2D926B96F20414369CAF /* VoxNoteApp.swift */; };
+		272E7073B9EF4292644A7695 /* SummarizationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 821AF14F9529C4F915F93DC8 /* SummarizationService.swift */; };
+		35B0809FA5C4BA1367B36BF8 /* WaveformView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A7D4680735516B8D845E0B6 /* WaveformView.swift */; };
+		3760D355EED4DF95FEB0B122 /* NotesListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD4BBBD306CCB5598E9DA19E /* NotesListView.swift */; };
+		42B5C1356B00F3A10C5BDFF3 /* RecordingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7A5D92C40DBDD4B8E4CCDDC /* RecordingView.swift */; };
+		AF225A309C06FBF39522A3C0 /* AudioPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 224D38D9118CC6D2E9021506 /* AudioPlayerView.swift */; };
+		BB31F1D05C7CA6D5B74DEBD0 /* ZeticMLange in Frameworks */ = {isa = PBXBuildFile; productRef = E9A3BA955870E77E9E3228F8 /* ZeticMLange */; };
+		BCB28738D5F42C1BE6D8550A /* AudioService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 218582E829862287C687F845 /* AudioService.swift */; };
+		C1371151EC46C7D822124C43 /* VoiceNote.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CC756F12C9A0E0A619D5081 /* VoiceNote.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		0EE7F8E2392A8B0F3DFAFDA2 /* VoxNote.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VoxNote.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		218582E829862287C687F845 /* AudioService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioService.swift; sourceTree = "<group>"; };
+		224D38D9118CC6D2E9021506 /* AudioPlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioPlayerView.swift; sourceTree = "<group>"; };
+		2A7D4680735516B8D845E0B6 /* WaveformView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaveformView.swift; sourceTree = "<group>"; };
+		33CC2D926B96F20414369CAF /* VoxNoteApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoxNoteApp.swift; sourceTree = "<group>"; };
+		4CC756F12C9A0E0A619D5081 /* VoiceNote.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceNote.swift; sourceTree = "<group>"; };
+		5BDAC3F62372DF63D0FCB050 /* NoteDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteDetailView.swift; sourceTree = "<group>"; };
+		821AF14F9529C4F915F93DC8 /* SummarizationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SummarizationService.swift; sourceTree = "<group>"; };
+		BD4BBBD306CCB5598E9DA19E /* NotesListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotesListView.swift; sourceTree = "<group>"; };
+		C66A58592478B4F71FC57A05 /* TranscriptionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptionService.swift; sourceTree = "<group>"; };
+		D7A5D92C40DBDD4B8E4CCDDC /* RecordingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingView.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		E743287DCB08B35D711D76CB /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BB31F1D05C7CA6D5B74DEBD0 /* ZeticMLange in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		411DC572D1BEA4738088AC59 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				218582E829862287C687F845 /* AudioService.swift */,
+				821AF14F9529C4F915F93DC8 /* SummarizationService.swift */,
+				C66A58592478B4F71FC57A05 /* TranscriptionService.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		60743A2867D486258A420389 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				4CC756F12C9A0E0A619D5081 /* VoiceNote.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		9D248152261CAB652E9F64D1 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				F2D82AE53F6D1809C302C568 /* Components */,
+				5BDAC3F62372DF63D0FCB050 /* NoteDetailView.swift */,
+				BD4BBBD306CCB5598E9DA19E /* NotesListView.swift */,
+				D7A5D92C40DBDD4B8E4CCDDC /* RecordingView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		B94B6DA2C615F3BAA9F0706B = {
+			isa = PBXGroup;
+			children = (
+				DA83632DD9494BF2DBA1E67B /* App */,
+				60743A2867D486258A420389 /* Models */,
+				411DC572D1BEA4738088AC59 /* Services */,
+				9D248152261CAB652E9F64D1 /* Views */,
+				EF38FE7D0C9D79B5E397673C /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		DA83632DD9494BF2DBA1E67B /* App */ = {
+			isa = PBXGroup;
+			children = (
+				33CC2D926B96F20414369CAF /* VoxNoteApp.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		EF38FE7D0C9D79B5E397673C /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				0EE7F8E2392A8B0F3DFAFDA2 /* VoxNote.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F2D82AE53F6D1809C302C568 /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				224D38D9118CC6D2E9021506 /* AudioPlayerView.swift */,
+				2A7D4680735516B8D845E0B6 /* WaveformView.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		40CFBA24FA209610B7CCD81D /* VoxNote */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = EC17EE416011B10A86D6E1D2 /* Build configuration list for PBXNativeTarget "VoxNote" */;
+			buildPhases = (
+				CB3AEC3BAAF9A788429A1706 /* Sources */,
+				E743287DCB08B35D711D76CB /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = VoxNote;
+			packageProductDependencies = (
+				E9A3BA955870E77E9E3228F8 /* ZeticMLange */,
+			);
+			productName = VoxNote;
+			productReference = 0EE7F8E2392A8B0F3DFAFDA2 /* VoxNote.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		3CFAE55DBDE750333861545E /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1620;
+			};
+			buildConfigurationList = F15D41C3784FA41E38ADFBC1 /* Build configuration list for PBXProject "VoxNote" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = B94B6DA2C615F3BAA9F0706B;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				54A7E19205FAE876ABA6F4CE /* XCRemoteSwiftPackageReference "ZeticMLangeiOS" */,
+			);
+			preferredProjectObjectVersion = 77;
+			productRefGroup = EF38FE7D0C9D79B5E397673C /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				40CFBA24FA209610B7CCD81D /* VoxNote */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		CB3AEC3BAAF9A788429A1706 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AF225A309C06FBF39522A3C0 /* AudioPlayerView.swift in Sources */,
+				BCB28738D5F42C1BE6D8550A /* AudioService.swift in Sources */,
+				10EAB7659C65A47EA419EBC9 /* NoteDetailView.swift in Sources */,
+				3760D355EED4DF95FEB0B122 /* NotesListView.swift in Sources */,
+				42B5C1356B00F3A10C5BDFF3 /* RecordingView.swift in Sources */,
+				272E7073B9EF4292644A7695 /* SummarizationService.swift in Sources */,
+				1A2F73118D8E8AE24CD51F8C /* TranscriptionService.swift in Sources */,
+				C1371151EC46C7D822124C43 /* VoiceNote.swift in Sources */,
+				26E62ECCE5E989FDD6B218C3 /* VoxNoteApp.swift in Sources */,
+				35B0809FA5C4BA1367B36BF8 /* WaveformView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		14DFB39AA2689E46A2D12E46 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_SWIFT_FLAGS = "-enable-upcoming-feature NonescapableTypes -enable-experimental-feature NonescapableTypes";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_STRICT_CONCURRENCY = minimal;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		5487AEAE8460506DCCEA8832 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				OTHER_SWIFT_FLAGS = "-enable-upcoming-feature NonescapableTypes -enable-experimental-feature NonescapableTypes";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_STRICT_CONCURRENCY = minimal;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		AA02D28CE35067CA44FC1EF0 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = S48C9F3F58;
+				INFOPLIST_FILE = Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-framework",
+					Accelerate,
+					"-framework",
+					CoreML,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.voxnote.app;
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		AAE5F6172A6C7E0A2AD83ACC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = S48C9F3F58;
+				INFOPLIST_FILE = Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-framework",
+					Accelerate,
+					"-framework",
+					CoreML,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.voxnote.app;
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		EC17EE416011B10A86D6E1D2 /* Build configuration list for PBXNativeTarget "VoxNote" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AAE5F6172A6C7E0A2AD83ACC /* Debug */,
+				AA02D28CE35067CA44FC1EF0 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		F15D41C3784FA41E38ADFBC1 /* Build configuration list for PBXProject "VoxNote" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				14DFB39AA2689E46A2D12E46 /* Debug */,
+				5487AEAE8460506DCCEA8832 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		54A7E19205FAE876ABA6F4CE /* XCRemoteSwiftPackageReference "ZeticMLangeiOS" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/zetic-ai/ZeticMLangeiOS.git";
+			requirement = {
+				kind = exactVersion;
+				version = 1.5.8;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		E9A3BA955870E77E9E3228F8 /* ZeticMLange */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 54A7E19205FAE876ABA6F4CE /* XCRemoteSwiftPackageReference "ZeticMLangeiOS" */;
+			productName = ZeticMLange;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = 3CFAE55DBDE750333861545E /* Project object */;
+}

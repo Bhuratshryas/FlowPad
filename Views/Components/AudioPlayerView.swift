@@ -1,0 +1,53 @@
+import SwiftUI
+
+struct AudioPlayerView: View {
+    let audioURL: URL
+    let duration: TimeInterval
+    @Bindable var audioService: AudioService
+
+    var body: some View {
+        VStack(spacing: 14) {
+            StaticWaveformView(
+                progress: duration > 0
+                    ? audioService.currentPlaybackTime / duration
+                    : 0
+            )
+
+            HStack {
+                Text(formatTime(audioService.isPlaying ? audioService.currentPlaybackTime : 0))
+                    .font(.caption.monospacedDigit())
+                    .foregroundStyle(.secondary)
+
+                Spacer()
+
+                Button {
+                    let impact = UIImpactFeedbackGenerator(style: .light)
+                    impact.impactOccurred()
+                    audioService.togglePlayback(url: audioURL)
+                } label: {
+                    Image(systemName: audioService.isPlaying ? "pause.circle.fill" : "play.circle.fill")
+                        .font(.system(size: 48))
+                        .foregroundStyle(Color.accentColor)
+                        .contentTransition(.symbolEffect(.replace))
+                }
+
+                Spacer()
+
+                Text(formatTime(duration))
+                    .font(.caption.monospacedDigit())
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .padding(16)
+        .background(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .fill(.ultraThinMaterial)
+        )
+    }
+
+    private func formatTime(_ time: TimeInterval) -> String {
+        let m = Int(time) / 60
+        let s = Int(time) % 60
+        return String(format: "%d:%02d", m, s)
+    }
+}
