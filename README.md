@@ -60,3 +60,16 @@ Record → AudioService (AVAudioRecorder)
        → Summary text
        → VoiceNote persisted via SwiftData
 ```
+
+## Privacy Policy
+
+**We do not collect your data.** Flow Pad does not collect, store, or transmit any personal data to our servers or any third party.
+
+- **Recording & transcription** — Audio is recorded and transcribed entirely on your device (Apple Speech framework). Nothing is sent off device for transcription.
+- **Summaries & “Ask about note”** — Generated on your device; no note content is sent to us or any external service.
+- **Your notes** — Stored only on your device in the app’s local storage. We have no access.
+- **No analytics or tracking** — We do not use analytics, advertising, or tracking, or collect device identifiers or usage data.
+
+**Permissions:** Microphone (recording only); Speech Recognition (on-device transcription only); Photo Library (only when you add photos to a note — we do not collect or upload them).
+
+For the full policy, see [PRIVACY_POLICY.md](PRIVACY_POLICY.md).
