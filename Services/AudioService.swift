@@ -4,6 +4,7 @@ import Foundation
 @Observable
 final class AudioService: NSObject, @unchecked Sendable {
     var isRecording = false
+    var isPaused = false
     var isPlaying = false
     var recordingTime: TimeInterval = 0
     var currentPlaybackTime: TimeInterval = 0
@@ -11,9 +12,11 @@ final class AudioService: NSObject, @unchecked Sendable {
 
     private var audioRecorder: AVAudioRecorder?
     private var audioPlayer: AVAudioPlayer?
+    private var playbackURL: URL?
     private var meterTimer: Timer?
     private var playbackTimer: Timer?
     private var startTime: Date?
+    private var accumulatedRecordingTime: TimeInterval = 0
     private var currentFileName: String?
 
     override init() {
@@ -51,10 +54,12 @@ final class AudioService: NSObject, @unchecked Sendable {
         ]
 
         do {
+            accumulatedRecordingTime = 0
             audioRecorder = try AVAudioRecorder(url: url, settings: settings)
             audioRecorder?.isMeteringEnabled = true
             audioRecorder?.record()
             isRecording = true
+            isPaused = false
             startTime = Date()
             beginMeterUpdates()
         } catch {
@@ -64,6 +69,24 @@ final class AudioService: NSObject, @unchecked Sendable {
         return fileName
     }
 
+    func pauseRecording() {
+        guard isRecording, !isPaused, let recorder = audioRecorder, recorder.isRecording else { return }
+        accumulatedRecordingTime = recordingTime
+        recorder.pause()
+        meterTimer?.invalidate()
+        meterTimer = nil
+        startTime = nil
+        isPaused = true
+    }
+
+    func resumeRecording() {
+        guard isRecording, isPaused, let recorder = audioRecorder else { return }
+        recorder.record()
+        startTime = Date()
+        isPaused = false
+        beginMeterUpdates()
+    }
+
     func stopRecording() -> (fileName: String, duration: TimeInterval) {
         let duration = recordingTime
         let fileName = currentFileName ?? ""
@@ -71,9 +94,11 @@ final class AudioService: NSObject, @unchecked Sendable {
         audioRecorder?.stop()
         audioRecorder = nil
         isRecording = false
+        isPaused = false
         meterTimer?.invalidate()
         meterTimer = nil
         recordingTime = 0
+        accumulatedRecordingTime = 0
         startTime = nil
         meterLevel = 0
 
@@ -88,9 +113,11 @@ final class AudioService: NSObject, @unchecked Sendable {
         audioRecorder?.stop()
         audioRecorder = nil
         isRecording = false
+        isPaused = false
         meterTimer?.invalidate()
         meterTimer = nil
         recordingTime = 0
+        accumulatedRecordingTime = 0
         startTime = nil
         meterLevel = 0
         currentFileName = nil
@@ -100,11 +127,36 @@ final class AudioService: NSObject, @unchecked Sendable {
 
     func play(url: URL) {
         stopPlayback()
+        let fileURL = url.standardizedFileURL
+        guard FileManager.default.fileExists(atPath: fileURL.path) else {
+            print("Playback failed: file not found at \(fileURL.path)")
+            return
+        }
+        if Thread.isMainThread {
+            performPlay(url: fileURL)
+        } else {
+            DispatchQueue.main.async { [weak self] in
+                self?.performPlay(url: fileURL)
+            }
+        }
+    }
+
+    private func performPlay(url: URL) {
+        assert(Thread.isMainThread, "performPlay must run on main thread")
         do {
-            try AVAudioSession.sharedInstance().setCategory(.playback)
-            audioPlayer = try AVAudioPlayer(contentsOf: url)
-            audioPlayer?.delegate = self
-            audioPlayer?.play()
+            let session = AVAudioSession.sharedInstance()
+            // Keep playAndRecord so we don’t fight with recording; ensure playback can route to speaker
+            try session.setCategory(.playAndRecord, mode: .default, options: [.defaultToSpeaker, .allowBluetoothA2DP])
+            try session.setActive(true, options: .notifyOthersOnDeactivation)
+            let player = try AVAudioPlayer(contentsOf: url)
+            audioPlayer = player
+            player.delegate = self
+            player.prepareToPlay()
+            if !player.play() {
+                print("Playback failed: play() returned false")
+                return
+            }
+            playbackURL = url
             isPlaying = true
             beginPlaybackUpdates()
         } catch {
@@ -113,16 +165,34 @@ final class AudioService: NSObject, @unchecked Sendable {
     }
 
     func stopPlayback() {
-        audioPlayer?.stop()
-        audioPlayer = nil
-        isPlaying = false
+        if Thread.isMainThread {
+            performStopPlayback()
+        } else {
+            DispatchQueue.main.async { [weak self] in
+                self?.performStopPlayback()
+            }
+        }
+    }
+
+    private func performStopPlayback() {
+        assert(Thread.isMainThread, "performStopPlayback must run on main thread")
         playbackTimer?.invalidate()
         playbackTimer = nil
+        audioPlayer?.stop()
+        audioPlayer = nil
+        playbackURL = nil
+        isPlaying = false
         currentPlaybackTime = 0
     }
 
+    /// True when the given URL is the one currently playing.
+    func isPlaying(url: URL) -> Bool {
+        guard isPlaying, let current = playbackURL else { return false }
+        return current.standardizedFileURL == url.standardizedFileURL
+    }
+
     func togglePlayback(url: URL) {
-        if isPlaying {
+        if isPlaying(url: url) {
             stopPlayback()
         } else {
             play(url: url)
@@ -144,16 +214,23 @@ final class AudioService: NSObject, @unchecked Sendable {
             self.meterLevel = max(0, (power + 50) / 50)
 
             if let start = self.startTime {
-                self.recordingTime = Date().timeIntervalSince(start)
+                self.recordingTime = self.accumulatedRecordingTime + Date().timeIntervalSince(start)
             }
         }
     }
 
     private func beginPlaybackUpdates() {
-        playbackTimer = Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true) { [weak self] _ in
+        let timer = Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true) { [weak self] _ in
             guard let self, let player = self.audioPlayer else { return }
-            self.currentPlaybackTime = player.currentTime
+            let time = player.currentTime
+            if Thread.isMainThread {
+                self.currentPlaybackTime = time
+            } else {
+                DispatchQueue.main.async { self.currentPlaybackTime = time }
+            }
         }
+        RunLoop.main.add(timer, forMode: .common)
+        playbackTimer = timer
     }
 
     private var documentsDirectory: URL {
@@ -163,8 +240,9 @@ final class AudioService: NSObject, @unchecked Sendable {
 
 extension AudioService: AVAudioPlayerDelegate {
     func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully _: Bool) {
-        isPlaying = false
-        playbackTimer?.invalidate()
-        currentPlaybackTime = 0
+        // Delegate can be called on a background thread; always update state on main.
+        DispatchQueue.main.async { [weak self] in
+            self?.performStopPlayback()
+        }
     }
 }

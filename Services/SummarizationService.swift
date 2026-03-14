@@ -1,165 +1,232 @@
 import Foundation
-
-#if !targetEnvironment(simulator)
-@preconcurrency import ZeticMLange
+#if canImport(FoundationModels)
+import FoundationModels
 #endif
+
+struct StructuredSummary {
+    var summary: String
+    var keyHighlights: [String]
+    var actionItems: [String]
+}
 
 final class SummarizationService: @unchecked Sendable {
     static let shared = SummarizationService()
 
-    private(set) var isModelLoaded = false
-    private(set) var isLoadingModel = false
-    private(set) var downloadProgress: Double = 0
-    private(set) var loadError: String?
-
-    #if !targetEnvironment(simulator)
-    private var llmModel: ZeticMLangeLLMModel?
-    #endif
-
-    private let personalKey = "dev_73033372affb4a728c2df97683b6497d"
-    private let modelName = "Steve/Medgemma-1.5-4b-it"
-
     private init() {}
 
-    deinit {
-        #if !targetEnvironment(simulator)
-        llmModel?.forceDeinit()
-        #endif
-    }
-
-    // MARK: - Model Lifecycle
-
-    func loadModelIfNeeded() {
-        guard !isModelLoaded, !isLoadingModel else { return }
-        isLoadingModel = true
-        loadError = nil
-        downloadProgress = 0
-
-        let svc = self
-        Thread.detachNewThread {
-            svc.loadModelSync()
-        }
-    }
-
-    private func loadModelSync() {
-        #if !targetEnvironment(simulator)
-        do {
-            let svc = self
-            let model = try ZeticMLangeLLMModel(
-                personalKey: personalKey,
-                name: modelName,
-                version: 1,
-                modelMode: LLMModelMode.RUN_SPEED,
-                onDownload: { progress in
-                    DispatchQueue.main.async {
-                        svc.downloadProgress = Double(progress)
-                    }
-                }
-            )
-            DispatchQueue.main.async {
-                svc.llmModel = model
-                svc.isModelLoaded = true
-                svc.isLoadingModel = false
-                svc.downloadProgress = 1.0
-            }
-        } catch {
-            let svc = self
-            DispatchQueue.main.async {
-                svc.loadError = error.localizedDescription
-                svc.isLoadingModel = false
-            }
-        }
-        #else
-        let svc = self
-        DispatchQueue.main.async {
-            svc.loadError = "Run on a real device for AI summarization."
-            svc.isLoadingModel = false
-        }
-        #endif
-    }
-
-    // MARK: - Summarize
-
     func summarize(_ text: String) async -> String {
+        let s = await generateStructuredSummary(text)
+        return s.summary
+    }
+
+    /// Two-word title for the note (e.g. "Team Standup", "Project Ideas").
+    func generateTwoWordTitle(_ text: String) async -> String {
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmed.isEmpty else { return "" }
+        guard !trimmed.isEmpty else { return "New Note" }
 
-        if isLoadingModel {
-            let deadline = Date().addingTimeInterval(120)
-            while isLoadingModel && Date() < deadline {
-                try? await Task.sleep(nanoseconds: 500_000_000)
-            }
-        }
-
-        #if !targetEnvironment(simulator)
-        if let result = await runLLM(trimmed) {
+        #if canImport(FoundationModels)
+        if #available(iOS 26.0, *), let result = await generateTwoWordTitleWithLLM(trimmed) {
             return result
         }
         #endif
-
-        return extractiveSummarize(trimmed)
+        return fallbackTitle(from: trimmed)
     }
 
-    // MARK: - LLM Inference (background thread, streaming tokens)
+    /// Answer a question about the note using the given context (summary + transcript/content).
+    func ask(question: String, context: String) async -> String {
+        let q = question.trimmingCharacters(in: .whitespacesAndNewlines)
+        let c = context.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !q.isEmpty, !c.isEmpty else { return "" }
 
-    #if !targetEnvironment(simulator)
-    private func runLLM(_ text: String) async -> String? {
-        guard let model = llmModel else { return nil }
+        #if canImport(FoundationModels)
+        if #available(iOS 26.0, *), let result = await askWithLLM(question: q, context: c) {
+            return result
+        }
+        #endif
+        return "Ask is available when Apple Intelligence is enabled on this device."
+    }
 
-        let prompt = """
-        Extract 3-5 key points from this voice note transcript. \
-        Format as bullet points starting with "• ". \
-        Each point must be concise (under 12 words). \
-        Highlight the single most important word per point in **bold**. \
-        Do not copy full sentences from the transcript. \
-        Only output the bullet points, nothing else.
+    /// Summary paragraph, key highlights, and action items.
+    func generateStructuredSummary(_ text: String) async -> StructuredSummary {
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else {
+            return StructuredSummary(summary: "", keyHighlights: [], actionItems: [])
+        }
 
-        Transcript: \(String(text.prefix(1500)))
-        """
+        #if canImport(FoundationModels)
+        if #available(iOS 26.0, *), let result = await generateStructuredSummaryWithLLM(trimmed) {
+            return result
+        }
+        #endif
+        return fallbackStructuredSummary(trimmed)
+    }
 
-        let result: String? = await withCheckedContinuation { continuation in
-            Thread.detachNewThread {
-                do {
-                    try model.cleanUp()
-                } catch {
-                    // Safe to ignore if no previous context
-                }
+    // MARK: - Apple Foundation Models (on-device LLM, iOS 26+, Apple Intelligence)
 
-                do {
-                    _ = try model.run(prompt)
+    #if canImport(FoundationModels)
+    @available(iOS 26.0, *)
+    private func generateTwoWordTitleWithLLM(_ text: String) async -> String? {
+        let model = SystemLanguageModel.default
+        guard case .available = model.availability else { return nil }
+        let instructions = Instructions("""
+            You output exactly two words that capture the main topic of the following note. No punctuation, no extra words. Only the two words, title case.
+            """)
+        let session = LanguageModelSession(instructions: instructions)
+        let input = String(text.prefix(1500))
+        do {
+            let response = try await session.respond(to: input)
+            let raw = response.content.trimmingCharacters(in: .whitespacesAndNewlines)
+            let words = raw.split(separator: " ").prefix(2).map(String.init)
+            return words.joined(separator: " ").isEmpty ? nil : words.joined(separator: " ")
+        } catch {
+            return nil
+        }
+    }
 
-                    var buffer = ""
-                    while true {
-                        let waitResult = model.waitForNextToken()
-                        let token = waitResult.token
-                        let generatedTokens = waitResult.generatedTokens
+    @available(iOS 26.0, *)
+    private func generateStructuredSummaryWithLLM(_ text: String) async -> StructuredSummary? {
+        let model = SystemLanguageModel.default
+        guard case .available = model.availability else { return nil }
+        let instructions = Instructions("""
+            You analyze a voice or written note and output exactly three sections in this format. Use only the labels below.
 
-                        if generatedTokens == 0 {
-                            break
-                        }
+            SUMMARY:
+            (One short paragraph, 1-3 sentences.)
 
-                        buffer.append(token)
-                    }
+            KEY HIGHLIGHTS:
+            • (bullet 1)
+            • (bullet 2)
+            • (up to 5 bullets)
 
-                    do {
-                        try model.cleanUp()
-                    } catch {
-                        // Safe to ignore
-                    }
+            ACTION ITEMS:
+            • (action 1)
+            • (action 2)
+            • (up to 5 action items; start each with •)
 
-                    let cleaned = buffer.trimmingCharacters(in: .whitespacesAndNewlines)
-                    continuation.resume(returning: cleaned.isEmpty ? nil : cleaned)
-                } catch {
-                    do {
-                        try model.cleanUp()
-                    } catch {
-                        // Safe to ignore
-                    }
-                    continuation.resume(returning: nil)
-                }
+            Output nothing else. No extra text before or after these sections.
+            """)
+        let session = LanguageModelSession(instructions: instructions)
+        let input = String(text.prefix(4000))
+        do {
+            let response = try await session.respond(to: input)
+            return parseStructuredOutput(response.content)
+        } catch {
+            return nil
+        }
+    }
+
+    private func parseStructuredOutput(_ raw: String) -> StructuredSummary {
+        var summary = ""
+        var keyHighlights: [String] = []
+        var actionItems: [String] = []
+        let lines = raw.components(separatedBy: .newlines)
+        var section = ""
+        for line in lines {
+            let t = line.trimmingCharacters(in: .whitespaces)
+            if t.uppercased().hasPrefix("SUMMARY:") {
+                section = "summary"
+                let rest = t.dropFirst("SUMMARY:".count).trimmingCharacters(in: .whitespaces)
+                if !rest.isEmpty { summary = rest }
+                continue
+            }
+            if t.uppercased().hasPrefix("KEY HIGHLIGHTS:") {
+                section = "highlights"
+                let rest = t.dropFirst("KEY HIGHLIGHTS:".count).trimmingCharacters(in: .whitespaces)
+                if !rest.isEmpty, rest.hasPrefix("•") { keyHighlights.append(cleanBullet(rest)) }
+                continue
+            }
+            if t.uppercased().hasPrefix("ACTION ITEMS:") {
+                section = "items"
+                let rest = t.dropFirst("ACTION ITEMS:".count).trimmingCharacters(in: .whitespaces)
+                if !rest.isEmpty, rest.hasPrefix("•") { actionItems.append(cleanBullet(rest)) }
+                continue
+            }
+            if section == "summary", !t.isEmpty {
+                summary = summary.isEmpty ? t : "\(summary) \(t)"
+            } else if section == "highlights", t.hasPrefix("•") {
+                keyHighlights.append(cleanBullet(t))
+            } else if section == "items", t.hasPrefix("•") {
+                actionItems.append(cleanBullet(t))
             }
         }
-        return result
+        return StructuredSummary(
+            summary: summary.isEmpty ? raw.components(separatedBy: .newlines).first ?? "" : summary,
+            keyHighlights: keyHighlights.isEmpty && summary.isEmpty ? extractiveSummarize(raw).components(separatedBy: .newlines).map { cleanBullet($0) }.filter { !$0.isEmpty } : keyHighlights,
+            actionItems: actionItems
+        )
+    }
+
+    private func cleanBullet(_ s: String) -> String {
+        var t = s.trimmingCharacters(in: .whitespaces)
+        for prefix in ["•", "-", "*", "·"] {
+            if t.hasPrefix(prefix) {
+                t = String(t.dropFirst(prefix.count)).trimmingCharacters(in: .whitespaces)
+                break
+            }
+        }
+        return t
+    }
+
+    @available(iOS 26.0, *)
+    private func askWithLLM(question: String, context: String) async -> String? {
+        let model = SystemLanguageModel.default
+        guard case .available = model.availability else { return nil }
+        let instructions = Instructions("""
+            You answer the user's question about the following note. Use only the note content below. Be concise and helpful (1–4 sentences). If the note doesn't contain enough information, say so briefly.
+            """)
+        let session = LanguageModelSession(instructions: instructions)
+        let prompt = "Note:\n\(String(context.prefix(4000)))\n\nQuestion: \(question)"
+        do {
+            let response = try await session.respond(to: prompt)
+            return response.content.trimmingCharacters(in: .whitespacesAndNewlines)
+        } catch {
+            return nil
+        }
+    }
+
+    #endif
+
+    private func fallbackTitle(from text: String) -> String {
+        var first = ""
+        text.enumerateSubstrings(in: text.startIndex..., options: .bySentences) { sub, _, _, stop in
+            if let s = sub?.trimmingCharacters(in: .whitespacesAndNewlines), !s.isEmpty {
+                first = String(s.prefix(50))
+                stop = true
+            }
+        }
+        let words = first.split(separator: " ").prefix(2).map(String.init)
+        return words.joined(separator: " ").isEmpty ? "New Note" : words.joined(separator: " ")
+    }
+
+    private func fallbackStructuredSummary(_ text: String) -> StructuredSummary {
+        let bullets = extractiveSummarize(text)
+        let lines = bullets.components(separatedBy: .newlines).map { cleanBullet($0) }.filter { !$0.isEmpty }
+        let summary = lines.first ?? compressSentence(text)
+        return StructuredSummary(
+            summary: "• \(summary)",
+            keyHighlights: Array(lines.prefix(5)),
+            actionItems: []
+        )
+    }
+
+    #if canImport(FoundationModels)
+    @available(iOS 26.0, *)
+    private func summarizeWithAppleLLM(_ text: String) async -> String? {
+        let model = SystemLanguageModel.default
+        guard case .available = model.availability else { return nil }
+        let instructions = Instructions("""
+            You summarize voice note transcripts. Output 3-5 bullet points, each starting with "• ".
+            Keep each point under 12 words. Highlight the single most important word per point in **bold**.
+            Do not copy full sentences from the transcript. Output only the bullet points, nothing else.
+            """)
+        let session = LanguageModelSession(instructions: instructions)
+        let input = String(text.prefix(4000))
+        do {
+            let response = try await session.respond(to: input)
+            return response.content
+        } catch {
+            return nil
+        }
     }
     #endif
 

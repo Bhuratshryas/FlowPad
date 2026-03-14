@@ -3,9 +3,9 @@
 <plist version="1.0">
 <dict>
 	<key>CFBundleName</key>
-	<string>VoxNote</string>
+	<string>Flowpad</string>
 	<key>CFBundleDisplayName</key>
-	<string>VoxNote</string>
+	<string>Flowpad</string>
 	<key>CFBundleIdentifier</key>
 	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	<key>CFBundleVersion</key>
@@ -17,9 +17,11 @@
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>VoxNote needs microphone access to record your voice notes.</string>
+	<string>Flowpad needs microphone access to record your voice notes.</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
-	<string>VoxNote uses on-device speech recognition to transcribe your recordings.</string>
+	<string>Flowpad uses on-device speech recognition to transcribe your recordings.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Flowpad needs photo library access to add images to your notes.</string>
 	<key>UILaunchScreen</key>
 	<dict>
 		<key>UIColorName</key>

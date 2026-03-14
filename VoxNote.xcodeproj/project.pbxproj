@@ -9,29 +9,36 @@
 /* Begin PBXBuildFile section */
 		10EAB7659C65A47EA419EBC9 /* NoteDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BDAC3F62372DF63D0FCB050 /* NoteDetailView.swift */; };
 		1A2F73118D8E8AE24CD51F8C /* TranscriptionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C66A58592478B4F71FC57A05 /* TranscriptionService.swift */; };
-		26E62ECCE5E989FDD6B218C3 /* VoxNoteApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33CC2D926B96F20414369CAF /* VoxNoteApp.swift */; };
+		26E62ECCE5E989FDD6B218C3 /* FlowPadApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33CC2D926B96F20414369CAF /* FlowPadApp.swift */; };
+		APPTH3M3SW1FT0000000001 /* AppTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = APPTH3M3SW1FT0000000002 /* AppTheme.swift */; };
 		272E7073B9EF4292644A7695 /* SummarizationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 821AF14F9529C4F915F93DC8 /* SummarizationService.swift */; };
 		35B0809FA5C4BA1367B36BF8 /* WaveformView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A7D4680735516B8D845E0B6 /* WaveformView.swift */; };
 		3760D355EED4DF95FEB0B122 /* NotesListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD4BBBD306CCB5598E9DA19E /* NotesListView.swift */; };
 		42B5C1356B00F3A10C5BDFF3 /* RecordingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7A5D92C40DBDD4B8E4CCDDC /* RecordingView.swift */; };
 		AF225A309C06FBF39522A3C0 /* AudioPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 224D38D9118CC6D2E9021506 /* AudioPlayerView.swift */; };
-		BB31F1D05C7CA6D5B74DEBD0 /* ZeticMLange in Frameworks */ = {isa = PBXBuildFile; productRef = E9A3BA955870E77E9E3228F8 /* ZeticMLange */; };
 		BCB28738D5F42C1BE6D8550A /* AudioService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 218582E829862287C687F845 /* AudioService.swift */; };
 		C1371151EC46C7D822124C43 /* VoiceNote.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CC756F12C9A0E0A619D5081 /* VoiceNote.swift */; };
+		W1R1T3N0T3V1EW000001 /* WriteNoteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = W1R1T3N0T3V1EW000002 /* WriteNoteView.swift */; };
+		N0T3CH4T000000000000001 /* NoteChatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = N0T3CH4T000000000000002 /* NoteChatView.swift */; };
+		A55ET5C4T5C4T5L06000001 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A55ET5C4T5C4T5L06000002 /* Assets.xcassets */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		0EE7F8E2392A8B0F3DFAFDA2 /* VoxNote.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VoxNote.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		0EE7F8E2392A8B0F3DFAFDA2 /* Flow Pad.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Flow Pad.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		218582E829862287C687F845 /* AudioService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioService.swift; sourceTree = "<group>"; };
 		224D38D9118CC6D2E9021506 /* AudioPlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioPlayerView.swift; sourceTree = "<group>"; };
 		2A7D4680735516B8D845E0B6 /* WaveformView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaveformView.swift; sourceTree = "<group>"; };
-		33CC2D926B96F20414369CAF /* VoxNoteApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoxNoteApp.swift; sourceTree = "<group>"; };
+		33CC2D926B96F20414369CAF /* FlowPadApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlowPadApp.swift; sourceTree = "<group>"; };
+		APPTH3M3SW1FT0000000002 /* AppTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTheme.swift; sourceTree = "<group>"; };
 		4CC756F12C9A0E0A619D5081 /* VoiceNote.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceNote.swift; sourceTree = "<group>"; };
 		5BDAC3F62372DF63D0FCB050 /* NoteDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteDetailView.swift; sourceTree = "<group>"; };
 		821AF14F9529C4F915F93DC8 /* SummarizationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SummarizationService.swift; sourceTree = "<group>"; };
 		BD4BBBD306CCB5598E9DA19E /* NotesListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotesListView.swift; sourceTree = "<group>"; };
 		C66A58592478B4F71FC57A05 /* TranscriptionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptionService.swift; sourceTree = "<group>"; };
 		D7A5D92C40DBDD4B8E4CCDDC /* RecordingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingView.swift; sourceTree = "<group>"; };
+		W1R1T3N0T3V1EW000002 /* WriteNoteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WriteNoteView.swift; sourceTree = "<group>"; };
+		N0T3CH4T000000000000002 /* NoteChatView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteChatView.swift; sourceTree = "<group>"; };
+		A55ET5C4T5C4T5L06000002 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -39,7 +46,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				BB31F1D05C7CA6D5B74DEBD0 /* ZeticMLange in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -71,6 +77,8 @@
 				5BDAC3F62372DF63D0FCB050 /* NoteDetailView.swift */,
 				BD4BBBD306CCB5598E9DA19E /* NotesListView.swift */,
 				D7A5D92C40DBDD4B8E4CCDDC /* RecordingView.swift */,
+				W1R1T3N0T3V1EW000002 /* WriteNoteView.swift */,
+				N0T3CH4T000000000000002 /* NoteChatView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -82,14 +90,24 @@
 				60743A2867D486258A420389 /* Models */,
 				411DC572D1BEA4738088AC59 /* Services */,
 				9D248152261CAB652E9F64D1 /* Views */,
+				R3550URC3S6R0UP000001 /* Resources */,
 				EF38FE7D0C9D79B5E397673C /* Products */,
 			);
+			sourceTree = "<group>";
+		};
+		R3550URC3S6R0UP000001 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				A55ET5C4T5C4T5L06000002 /* Assets.xcassets */,
+			);
+			path = Resources;
 			sourceTree = "<group>";
 		};
 		DA83632DD9494BF2DBA1E67B /* App */ = {
 			isa = PBXGroup;
 			children = (
-				33CC2D926B96F20414369CAF /* VoxNoteApp.swift */,
+				APPTH3M3SW1FT0000000002 /* AppTheme.swift */,
+				33CC2D926B96F20414369CAF /* FlowPadApp.swift */,
 			);
 			path = App;
 			sourceTree = "<group>";
@@ -97,7 +115,7 @@
 		EF38FE7D0C9D79B5E397673C /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				0EE7F8E2392A8B0F3DFAFDA2 /* VoxNote.app */,
+				0EE7F8E2392A8B0F3DFAFDA2 /* Flow Pad.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -113,24 +131,33 @@
 		};
 /* End PBXGroup section */
 
+/* Begin PBXResourcesBuildPhase section */
+		R3550URC3S8U1LDPHASE01 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A55ET5C4T5C4T5L06000001 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
 /* Begin PBXNativeTarget section */
-		40CFBA24FA209610B7CCD81D /* VoxNote */ = {
+		40CFBA24FA209610B7CCD81D /* Flow Pad */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = EC17EE416011B10A86D6E1D2 /* Build configuration list for PBXNativeTarget "VoxNote" */;
+			buildConfigurationList = EC17EE416011B10A86D6E1D2 /* Build configuration list for PBXNativeTarget "Flow Pad" */;
 			buildPhases = (
 				CB3AEC3BAAF9A788429A1706 /* Sources */,
 				E743287DCB08B35D711D76CB /* Frameworks */,
+				R3550URC3S8U1LDPHASE01 /* Resources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
-			name = VoxNote;
-			packageProductDependencies = (
-				E9A3BA955870E77E9E3228F8 /* ZeticMLange */,
-			);
-			productName = VoxNote;
-			productReference = 0EE7F8E2392A8B0F3DFAFDA2 /* VoxNote.app */;
+			name = "Flow Pad";
+			productName = "Flow Pad";
+			productReference = 0EE7F8E2392A8B0F3DFAFDA2 /* Flow Pad.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -142,7 +169,7 @@
 				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 1620;
 			};
-			buildConfigurationList = F15D41C3784FA41E38ADFBC1 /* Build configuration list for PBXProject "VoxNote" */;
+			buildConfigurationList = F15D41C3784FA41E38ADFBC1 /* Build configuration list for PBXProject "Flow Pad" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -151,15 +178,12 @@
 			);
 			mainGroup = B94B6DA2C615F3BAA9F0706B;
 			minimizedProjectReferenceProxies = 1;
-			packageReferences = (
-				54A7E19205FAE876ABA6F4CE /* XCRemoteSwiftPackageReference "ZeticMLangeiOS" */,
-			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = EF38FE7D0C9D79B5E397673C /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				40CFBA24FA209610B7CCD81D /* VoxNote */,
+				40CFBA24FA209610B7CCD81D /* Flow Pad */,
 			);
 		};
 /* End PBXProject section */
@@ -177,8 +201,11 @@
 				272E7073B9EF4292644A7695 /* SummarizationService.swift in Sources */,
 				1A2F73118D8E8AE24CD51F8C /* TranscriptionService.swift in Sources */,
 				C1371151EC46C7D822124C43 /* VoiceNote.swift in Sources */,
-				26E62ECCE5E989FDD6B218C3 /* VoxNoteApp.swift in Sources */,
+				26E62ECCE5E989FDD6B218C3 /* FlowPadApp.swift in Sources */,
+				APPTH3M3SW1FT0000000001 /* AppTheme.swift in Sources */,
 				35B0809FA5C4BA1367B36BF8 /* WaveformView.swift in Sources */,
+				W1R1T3N0T3V1EW000001 /* WriteNoteView.swift in Sources */,
+				N0T3CH4T000000000000001 /* NoteChatView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -238,7 +265,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				MARKETING_VERSION = 1.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -301,7 +328,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				MARKETING_VERSION = 1.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
@@ -329,13 +356,6 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					"-framework",
-					Accelerate,
-					"-framework",
-					CoreML,
-				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.voxnote.app;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = iphoneos;
@@ -356,13 +376,6 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					"-framework",
-					Accelerate,
-					"-framework",
-					CoreML,
-				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.voxnote.app;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = iphoneos;
@@ -373,7 +386,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		EC17EE416011B10A86D6E1D2 /* Build configuration list for PBXNativeTarget "VoxNote" */ = {
+		EC17EE416011B10A86D6E1D2 /* Build configuration list for PBXNativeTarget "Flow Pad" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				AAE5F6172A6C7E0A2AD83ACC /* Debug */,
@@ -382,7 +395,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
 		};
-		F15D41C3784FA41E38ADFBC1 /* Build configuration list for PBXProject "VoxNote" */ = {
+		F15D41C3784FA41E38ADFBC1 /* Build configuration list for PBXProject "Flow Pad" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				14DFB39AA2689E46A2D12E46 /* Debug */,
@@ -393,24 +406,6 @@
 		};
 /* End XCConfigurationList section */
 
-/* Begin XCRemoteSwiftPackageReference section */
-		54A7E19205FAE876ABA6F4CE /* XCRemoteSwiftPackageReference "ZeticMLangeiOS" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/zetic-ai/ZeticMLangeiOS.git";
-			requirement = {
-				kind = exactVersion;
-				version = 1.5.8;
-			};
-		};
-/* End XCRemoteSwiftPackageReference section */
-
-/* Begin XCSwiftPackageProductDependency section */
-		E9A3BA955870E77E9E3228F8 /* ZeticMLange */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 54A7E19205FAE876ABA6F4CE /* XCRemoteSwiftPackageReference "ZeticMLangeiOS" */;
-			productName = ZeticMLange;
-		};
-/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 3CFAE55DBDE750333861545E /* Project object */;
 }

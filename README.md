@@ -1,4 +1,4 @@
-# VoxNote
+# Flow Pad
 
 A professional on-device voice recorder for iOS that automatically transcribes and summarizes your recordings using on-device AI.
 
@@ -6,7 +6,7 @@ A professional on-device voice recorder for iOS that automatically transcribes a
 
 - **One-Tap Recording** — Large, prominent record button with live waveform visualization and pulse animations
 - **Automatic Transcription** — On-device speech-to-text using Apple's Speech framework (no network required)
-- **Smart Summarization** — Extractive summarization distills key points from your transcript. With Zetic Melange SDK, upgrade to AI-powered generative summaries via NPU acceleration
+- **Smart Summarization** — Apple’s on-device Foundation Model (Apple Intelligence) generates bullet-point summaries when available; falls back to built-in extractive summarization otherwise
 - **Editable Titles** — Auto-generated from transcript, fully editable inline
 - **One-Tap Copy** — Copy summary or transcript with a single tap, with haptic feedback and toast confirmation
 - **Audio Playback** — Built-in player with waveform progress visualization
@@ -17,36 +17,28 @@ A professional on-device voice recorder for iOS that automatically transcribes a
 
 ## Requirements
 
-- Xcode 15+
-- iOS 17.0+
-- Real device recommended (microphone, Speech framework, NPU)
+- Xcode 16+ (for Foundation Models framework)
+- iOS 26.0+
+- Real device recommended (microphone, Speech framework). For AI summaries, Apple Intelligence must be enabled on a supported device.
 
 ## Setup
 
-1. Open `VoxNote.xcodeproj` in Xcode
+1. Open `VoxNote.xcodeproj` in Xcode (project folder is still named VoxNote)
 2. Select your development team under Signing & Capabilities
 3. Build and run on a device
 
-### Optional: Zetic Melange Integration
-
-For AI-powered generative summarization:
-
-1. Add the Zetic MLange SDK: **File → Add Package Dependencies** → `https://github.com/zetic-ai/ZeticMLangeiOS.git`
-2. Add your `ZETIC_MLANGE_KEY` to `Info.plist`
-3. Upload a summarization model to the [Melange Dashboard](https://dashboard.zetic.ai)
-
-Without the SDK, the app uses a built-in extractive summarization algorithm.
+Summarization uses Apple’s **Foundation Models** framework when the on-device language model is available (Apple Intelligence on). Otherwise the app uses built-in extractive summarization.
 
 ## Architecture
 
 ```
-VoxNote/
+FlowPad/
 ├── App/                    # App entry point
 ├── Models/                 # SwiftData model (VoiceNote)
 ├── Services/
 │   ├── AudioService        # AVAudioRecorder + AVAudioPlayer
 │   ├── TranscriptionService # SFSpeechRecognizer (on-device)
-│   └── SummarizationService # Zetic Melange + extractive fallback
+│   └── SummarizationService # Apple Foundation Models + extractive fallback
 ├── Views/
 │   ├── NotesListView       # Main list with search + grouping
 │   ├── RecordingView       # Full-screen recorder with waveform
@@ -64,7 +56,7 @@ Record → AudioService (AVAudioRecorder)
        → m4a file saved to Documents
        → TranscriptionService (SFSpeechRecognizer)
        → Transcript text
-       → SummarizationService (Zetic or extractive)
+       → SummarizationService (Apple LLM or extractive)
        → Summary text
        → VoiceNote persisted via SwiftData
 ```

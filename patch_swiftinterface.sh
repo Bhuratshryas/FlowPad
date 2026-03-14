@@ -52,7 +52,7 @@ for fname in ['arm64-apple-ios.swiftinterface', 'arm64-apple-ios.private.swiftin
 "
 
 # Clear module cache so compiler re-reads the patched interface
-find "$DERIVED_DATA" -name "VoxNote-*" -path "*/Intermediates.noindex" -type d -exec rm -rf {} + 2>/dev/null || true
+find "$DERIVED_DATA" -name "Flow Pad-*" -path "*/Intermediates.noindex" -type d -exec rm -rf {} + 2>/dev/null || true
 rm -rf "$DERIVED_DATA/ModuleCache.noindex" 2>/dev/null || true
 
 echo "Done. Clean build folder in Xcode (Shift+Cmd+K) and rebuild."

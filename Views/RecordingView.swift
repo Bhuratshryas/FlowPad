@@ -4,8 +4,11 @@ struct RecordingView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var audioService = AudioService()
     @State private var isRecording = false
+    @State private var isSaving = false
     @State private var pulseAnimation = false
 
+    /// If true, parent will dismiss by setting the binding; don't call dismiss() after onSave.
+    var dismissAfterSave: Bool = false
     var onSave: ((_ recording: (fileName: String, duration: TimeInterval)) -> Void)
 
     var body: some View {
@@ -23,6 +26,7 @@ struct RecordingView: View {
                 bottomSpacer
             }
         }
+        .preferredColorScheme(.light)
         .animation(.spring(response: 0.5, dampingFraction: 0.75), value: isRecording)
         .statusBarHidden(isRecording)
     }
@@ -31,7 +35,7 @@ struct RecordingView: View {
 
     private var background: some View {
         ZStack {
-            Color(.systemBackground)
+            AppTheme.surfaceRaised
                 .ignoresSafeArea()
 
             if isRecording {
@@ -63,7 +67,7 @@ struct RecordingView: View {
                 Image(systemName: "xmark.circle.fill")
                     .font(.title2)
                     .symbolRenderingMode(.hierarchical)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(AppTheme.textSecondary)
             }
 
             Spacer()
@@ -73,24 +77,40 @@ struct RecordingView: View {
                     Circle()
                         .fill(.red)
                         .frame(width: 8, height: 8)
-                        .opacity(pulseAnimation ? 0.3 : 1.0)
+                        .opacity(audioService.isPaused ? 0.5 : (pulseAnimation ? 0.3 : 1.0))
                         .animation(
-                            .easeInOut(duration: 0.8).repeatForever(autoreverses: true),
+                            audioService.isPaused ? nil : .easeInOut(duration: 0.8).repeatForever(autoreverses: true),
                             value: pulseAnimation
                         )
                         .onAppear { pulseAnimation = true }
                         .onDisappear { pulseAnimation = false }
 
-                    Text("Recording")
+                    Text(audioService.isPaused ? "Paused" : "Recording")
                         .font(.subheadline.weight(.medium))
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(AppTheme.textSecondary)
                 }
                 .transition(.opacity.combined(with: .blurReplace))
             }
 
             Spacer()
 
-            Color.clear.frame(width: 28, height: 28)
+            if isRecording {
+                Button("Done") {
+                    guard !isSaving else { return }
+                    isSaving = true
+                    let result = audioService.stopRecording()
+                    isRecording = false
+                    onSave(result)
+                    if !dismissAfterSave {
+                        dismiss()
+                    }
+                }
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(AppTheme.accent)
+                .disabled(isSaving)
+            } else {
+                Color.clear.frame(width: 28, height: 28)
+            }
         }
         .padding(.horizontal, 20)
         .padding(.top, 16)
@@ -102,7 +122,7 @@ struct RecordingView: View {
         Text(formatTime(audioService.recordingTime))
             .font(.system(size: 72, weight: .ultraLight, design: .rounded))
             .monospacedDigit()
-            .foregroundStyle(isRecording ? .primary : .tertiary)
+            .foregroundStyle(isRecording ? AppTheme.textPrimary : AppTheme.textTertiary)
             .contentTransition(.numericText())
             .animation(.linear(duration: 0.08), value: audioService.recordingTime)
     }
@@ -123,11 +143,11 @@ struct RecordingView: View {
                     Image(systemName: "mic.circle")
                         .font(.system(size: 48))
                         .symbolRenderingMode(.hierarchical)
-                        .foregroundStyle(.tertiary)
+                        .foregroundStyle(AppTheme.textTertiary)
 
                     Text("Tap to start recording")
                         .font(.subheadline)
-                        .foregroundStyle(.tertiary)
+                        .foregroundStyle(AppTheme.textTertiary)
                 }
                 .frame(height: 80)
                 .transition(.opacity)
@@ -143,17 +163,18 @@ struct RecordingView: View {
             impact.impactOccurred()
 
             if isRecording {
-                let result = audioService.stopRecording()
-                isRecording = false
-                onSave(result)
-                dismiss()
+                if audioService.isPaused {
+                    audioService.resumeRecording()
+                } else {
+                    audioService.pauseRecording()
+                }
             } else {
                 audioService.startRecording()
                 isRecording = true
             }
         } label: {
             ZStack {
-                if isRecording {
+                if isRecording, !audioService.isPaused {
                     pulseRings
                 }
 
@@ -173,9 +194,9 @@ struct RecordingView: View {
                     .overlay {
                         Group {
                             if isRecording {
-                                RoundedRectangle(cornerRadius: 6, style: .continuous)
-                                    .fill(.white)
-                                    .frame(width: 26, height: 26)
+                                Image(systemName: audioService.isPaused ? "play.fill" : "pause.fill")
+                                    .font(.system(size: 28, weight: .medium))
+                                    .foregroundStyle(.white)
                             } else {
                                 Circle()
                                     .fill(.white)

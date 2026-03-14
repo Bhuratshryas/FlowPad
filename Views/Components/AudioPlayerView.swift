@@ -16,7 +16,7 @@ struct AudioPlayerView: View {
             HStack {
                 Text(formatTime(audioService.isPlaying ? audioService.currentPlaybackTime : 0))
                     .font(.caption.monospacedDigit())
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(AppTheme.textSecondary)
 
                 Spacer()
 
@@ -27,7 +27,7 @@ struct AudioPlayerView: View {
                 } label: {
                     Image(systemName: audioService.isPlaying ? "pause.circle.fill" : "play.circle.fill")
                         .font(.system(size: 48))
-                        .foregroundStyle(Color.accentColor)
+                        .foregroundStyle(AppTheme.accent)
                         .contentTransition(.symbolEffect(.replace))
                 }
 
@@ -35,7 +35,7 @@ struct AudioPlayerView: View {
 
                 Text(formatTime(duration))
                     .font(.caption.monospacedDigit())
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(AppTheme.textSecondary)
             }
         }
         .padding(16)
