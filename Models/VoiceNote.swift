@@ -7,7 +7,11 @@ final class VoiceNote {
     var title: String
     /// Non-empty for voice notes; empty for written-only notes.
     var audioFileName: String
+    /// Additional recordings added to this note (same order as additionalDurations, additionalTranscripts). Nil for notes created before this feature.
+    var additionalAudioFileNames: [String]?
     var transcript: String?
+    /// Transcripts for each additional recording (filled after transcription). Nil for notes created before this feature.
+    var additionalTranscripts: [String]?
     /// Main summary paragraph (structured summary).
     var summary: String?
     /// Key highlights (bullets). Optional for migration from older records.
@@ -23,13 +27,18 @@ final class VoiceNote {
     var isPinned: Bool
     var createdAt: Date
     var duration: TimeInterval
+    /// Durations for each additional recording (parallel to additionalAudioFileNames). Nil for notes created before this feature.
+    var additionalDurations: [TimeInterval]?
     var isProcessing: Bool
 
     init(
         title: String = "New Note",
         audioFileName: String = "",
+        additionalAudioFileNames: [String]? = nil,
         duration: TimeInterval = 0,
+        additionalDurations: [TimeInterval]? = nil,
         transcript: String? = nil,
+        additionalTranscripts: [String]? = nil,
         summary: String? = nil,
         keyHighlights: [String] = [],
         actionItemTexts: [String] = [],
@@ -41,8 +50,11 @@ final class VoiceNote {
         self.id = UUID()
         self.title = title
         self.audioFileName = audioFileName
+        self.additionalAudioFileNames = additionalAudioFileNames ?? []
         self.duration = duration
+        self.additionalDurations = additionalDurations ?? []
         self.transcript = transcript
+        self.additionalTranscripts = additionalTranscripts ?? []
         self.summary = summary
         self.keyHighlights = keyHighlights
         self.actionItemTexts = actionItemTexts
@@ -66,10 +78,40 @@ final class VoiceNote {
         return docs.appendingPathComponent(audioFileName)
     }
 
-    /// Content used for summarization (transcript or written body).
+    /// All recordings in order: primary first, then additional. (url, duration)
+    var allRecordingURLsAndDurations: [(url: URL, duration: TimeInterval)] {
+        let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+        var out: [(URL, TimeInterval)] = []
+        if !audioFileName.isEmpty {
+            out.append((docs.appendingPathComponent(audioFileName), duration))
+        }
+        let addNames = additionalAudioFileNames ?? []
+        let addDurations = additionalDurations ?? []
+        for (i, name) in addNames.enumerated() {
+            let dur = i < addDurations.count ? addDurations[i] : 0
+            out.append((docs.appendingPathComponent(name), dur))
+        }
+        return out
+    }
+
+    /// Total duration of all recordings.
+    var totalDuration: TimeInterval {
+        duration + (additionalDurations ?? []).reduce(0, +)
+    }
+
+    /// Content used for summarization (combined transcript or written body).
     var contentForSummary: String? {
-        if let t = transcript, !t.isEmpty { return t }
+        let combined = combinedTranscript
+        if !combined.isEmpty { return combined }
         return writtenContent
+    }
+
+    /// Combined transcript: primary + all additional, separated by newlines.
+    var combinedTranscript: String {
+        var parts: [String] = []
+        if let t = transcript, !t.isEmpty { parts.append(t) }
+        parts.append(contentsOf: (additionalTranscripts ?? []).filter { !$0.isEmpty })
+        return parts.joined(separator: "\n\n")
     }
 
     var formattedDuration: String {

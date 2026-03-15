@@ -79,6 +79,9 @@ struct NotesListView: View {
                         .zIndex(10)
                 }
             }
+            .safeAreaInset(edge: .bottom, spacing: 0) {
+                recordAndWriteButton
+            }
             .sheet(isPresented: $showWriteNote, onDismiss: {
                 if let note = noteToOpenAfterWrite {
                     withAnimation(.easeInOut(duration: 0.25)) {
@@ -124,6 +127,37 @@ struct NotesListView: View {
         .task {
             _ = await TranscriptionService.shared.requestAuthorization()
         }
+    }
+
+    // MARK: - Record and Write (bottom: two separate buttons)
+
+    private var recordAndWriteButton: some View {
+        HStack(spacing: 12) {
+            Button {
+                showRecording = true
+            } label: {
+                Label("Record", systemImage: "mic.fill")
+                    .font(.headline.weight(.semibold))
+                    .foregroundStyle(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 16)
+                    .background(AppTheme.accent, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+            }
+            .buttonStyle(.plain)
+            Button {
+                showWriteNote = true
+            } label: {
+                Label("Write", systemImage: "square.and.pencil")
+                    .font(.headline.weight(.semibold))
+                    .foregroundStyle(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 16)
+                    .background(AppTheme.accent, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+            }
+            .buttonStyle(.plain)
+        }
+        .padding(.horizontal, 20)
+        .padding(.vertical, 12)
     }
 
     // MARK: - Recording saved toast

@@ -12,6 +12,9 @@ struct NoteDetailView: View {
     @State private var isSummarizing = false
     @State private var isSuggestingTitle = false
     @State private var showNoteChat = false
+    @State private var showAddRecording = false
+    @State private var showUpdateSummaryAlert = false
+    @State private var recordingsExpanded = true
 
     var body: some View {
         ScrollView {
@@ -19,7 +22,7 @@ struct NoteDetailView: View {
                 askAboutNoteBar
                 titleField
                 metadataRow
-                if note.hasAudio { playerBar }
+                if note.hasAudio { recordingsSection }
                 divider
 
                 if note.isProcessing {
@@ -44,8 +47,8 @@ struct NoteDetailView: View {
                     divider
                 }
 
-                if let transcript = note.transcript, !transcript.isEmpty {
-                    sectionBlock(label: "Transcript", icon: "text.quote", text: transcript)
+                if !note.combinedTranscript.isEmpty {
+                    sectionBlock(label: "Transcript", icon: "text.quote", text: note.combinedTranscript)
                     divider
                 }
                 if let written = note.writtenContent, !written.isEmpty || !note.attachedImageFileNames.isEmpty {
@@ -73,6 +76,20 @@ struct NoteDetailView: View {
         .sheet(isPresented: $showNoteChat) {
             NoteChatView(noteTitle: note.title, context: noteContextForChat)
         }
+        .fullScreenCover(isPresented: $showAddRecording) {
+            RecordingView(dismissAfterSave: true) { recording in
+                appendRecordingToNote(recording)
+                showAddRecording = false
+            }
+        }
+        .alert("Update summary?", isPresented: $showUpdateSummaryAlert) {
+            Button("Update") {
+                Task { await updateSummaryFromAllRecordings() }
+            }
+            Button("Later", role: .cancel) { }
+        } message: {
+            Text("New recording added. Update summary and action items from all recordings?")
+        }
         .onDisappear {
             audioService.stopPlayback()
         }
@@ -83,7 +100,8 @@ struct NoteDetailView: View {
     }
 
     private var noteContextForChat: String {
-        [note.summary, note.transcript, note.writtenContent]
+        let transcriptPart = note.combinedTranscript.isEmpty ? nil : note.combinedTranscript
+        return [note.summary, transcriptPart, note.writtenContent]
             .compactMap { $0 }
             .filter { !$0.isEmpty }
             .joined(separator: "\n\n")
@@ -253,7 +271,7 @@ struct NoteDetailView: View {
                 .foregroundStyle(AppTheme.textSecondary)
             Spacer()
             if note.hasAudio {
-                Text(note.formattedDuration)
+                Text(formatTime(note.totalDuration))
                     .font(.footnote.monospacedDigit())
                     .foregroundStyle(AppTheme.textSecondary)
             }
@@ -261,48 +279,164 @@ struct NoteDetailView: View {
         .padding(.bottom, 20)
     }
 
-    // MARK: - Audio Player
+    // MARK: - Recordings (multiple per note, in dropdown)
 
-    private var playerBar: some View {
-        Group {
-            if let url = note.audioURL {
-                HStack(spacing: 12) {
-                    Button {
-                        UIImpactFeedbackGenerator(style: .light).impactOccurred()
-                        audioService.togglePlayback(url: url)
-                    } label: {
-                        Image(systemName: audioService.isPlaying(url: url) ? "pause.fill" : "play.fill")
-                            .font(.body)
-                            .foregroundStyle(.white)
-                            .frame(width: 36, height: 36)
-                            .background(AppTheme.accent, in: Circle())
-                            .contentTransition(.symbolEffect(.replace))
-                    }
-                    VStack(alignment: .leading, spacing: 4) {
-                        StaticWaveformView(
-                            progress: note.duration > 0 && audioService.isPlaying(url: url) ? audioService.currentPlaybackTime / note.duration : 0
-                        )
-                        HStack {
-                            Text(formatTime(audioService.isPlaying(url: url) ? audioService.currentPlaybackTime : 0))
-                            Spacer()
-                            Text(formatTime(note.duration))
-                        }
-                        .font(.caption2.monospacedDigit())
-                        .foregroundStyle(AppTheme.textPrimary)
-                    }
+    private var recordingsSection: some View {
+        let count = note.allRecordingURLsAndDurations.count
+        let header = HStack {
+            Label("Recordings", systemImage: "waveform.circle.fill")
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(AppTheme.textPrimary)
+            Spacer()
+            Text("\(count) \(count == 1 ? "recording" : "recordings") · \(formatTime(note.totalDuration))")
+                .font(.caption)
+                .foregroundStyle(AppTheme.textSecondary)
+        }
+        .padding(.vertical, 4)
+
+        return DisclosureGroup(isExpanded: $recordingsExpanded) {
+            VStack(alignment: .leading, spacing: 8) {
+                ForEach(Array(note.allRecordingURLsAndDurations.enumerated()), id: \.offset) { index, item in
+                    singlePlayerBar(url: item.url, duration: item.duration, label: "Recording \(index + 1)")
                 }
-                .padding(12)
-                .background(
+                Button {
+                    showAddRecording = true
+                } label: {
+                    HStack(spacing: 10) {
+                        Image(systemName: "plus.circle.fill")
+                            .font(.title3)
+                        Text("Add recording")
+                            .font(.subheadline.weight(.medium))
+                    }
+                    .foregroundStyle(AppTheme.accent)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 14)
+                    .background(
+                        RoundedRectangle(cornerRadius: 12, style: .continuous)
+                            .strokeBorder(AppTheme.accent, style: StrokeStyle(lineWidth: 2, dash: [6]))
+                    )
+                }
+                .buttonStyle(.plain)
+            }
+            .padding(.top, 8)
+        } label: {
+            header
+        }
+        .tint(AppTheme.textPrimary)
+        .padding(12)
+        .background(
+            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                .fill(AppTheme.surfaceBase)
+                .overlay(
                     RoundedRectangle(cornerRadius: 12, style: .continuous)
-                        .fill(AppTheme.surfaceBase)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 12, style: .continuous)
-                                .strokeBorder(AppTheme.borderSubtle, lineWidth: 1)
-                        )
+                        .strokeBorder(AppTheme.borderSubtle, lineWidth: 1)
                 )
-                .padding(.bottom, 8)
+        )
+        .padding(.bottom, 8)
+    }
+
+    private func singlePlayerBar(url: URL, duration: TimeInterval, label: String) -> some View {
+        HStack(spacing: 12) {
+            Button {
+                UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                audioService.togglePlayback(url: url)
+            } label: {
+                Image(systemName: audioService.isPlaying(url: url) ? "pause.fill" : "play.fill")
+                    .font(.body)
+                    .foregroundStyle(.white)
+                    .frame(width: 36, height: 36)
+                    .background(AppTheme.accent, in: Circle())
+                    .contentTransition(.symbolEffect(.replace))
+            }
+            VStack(alignment: .leading, spacing: 4) {
+                Text(label)
+                    .font(.caption.weight(.medium))
+                    .foregroundStyle(AppTheme.textSecondary)
+                StaticWaveformView(
+                    progress: duration > 0 && audioService.isPlaying(url: url) ? audioService.currentPlaybackTime / duration : 0
+                )
+                HStack {
+                    Text(formatTime(audioService.isPlaying(url: url) ? audioService.currentPlaybackTime : 0))
+                    Spacer()
+                    Text(formatTime(duration))
+                }
+                .font(.caption2.monospacedDigit())
+                .foregroundStyle(AppTheme.textPrimary)
             }
         }
+        .padding(12)
+        .background(
+            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                .fill(AppTheme.surfaceBase)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12, style: .continuous)
+                        .strokeBorder(AppTheme.borderSubtle, lineWidth: 1)
+                )
+        )
+    }
+
+    private func appendRecordingToNote(_ recording: (fileName: String, duration: TimeInterval)) {
+        note.additionalAudioFileNames = (note.additionalAudioFileNames ?? []) + [recording.fileName]
+        note.additionalDurations = (note.additionalDurations ?? []) + [recording.duration]
+        note.additionalTranscripts = (note.additionalTranscripts ?? []) + [""] // placeholder until transcribed
+        note.isProcessing = true
+        try? modelContext.save()
+        Task { await transcribeAndResummarizeLastRecording() }
+    }
+
+    @MainActor
+    private func transcribeAndResummarizeLastRecording() async {
+        let addNames = note.additionalAudioFileNames ?? []
+        let addTranscripts = note.additionalTranscripts ?? []
+        guard addNames.indices.contains(addTranscripts.count - 1) else { return }
+        let idx = addTranscripts.count - 1
+        let fileName = addNames[idx]
+        let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+        let url = docs.appendingPathComponent(fileName)
+        guard await TranscriptionService.shared.requestAuthorization() else {
+            var t = note.additionalTranscripts ?? []
+            if t.indices.contains(idx) { t[idx] = "Transcription not authorized" }
+            note.additionalTranscripts = t
+            note.isProcessing = false
+            try? modelContext.save()
+            return
+        }
+        guard FileManager.default.fileExists(atPath: url.path) else {
+            var t = note.additionalTranscripts ?? []
+            if t.indices.contains(idx) { t[idx] = "Transcription failed: file not found" }
+            note.additionalTranscripts = t
+            note.isProcessing = false
+            try? modelContext.save()
+            return
+        }
+        do {
+            let transcript = try await TranscriptionService.shared.transcribe(audioURL: url)
+            var t = note.additionalTranscripts ?? []
+            if t.indices.contains(idx) { t[idx] = transcript }; note.additionalTranscripts = t
+        } catch {
+            var t = note.additionalTranscripts ?? []
+            if t.indices.contains(idx) { t[idx] = "Transcription failed: \(error.localizedDescription)" }
+            note.additionalTranscripts = t
+        }
+        note.isProcessing = false
+        try? modelContext.save()
+        await MainActor.run {
+            showUpdateSummaryAlert = true
+        }
+    }
+
+    @MainActor
+    private func updateSummaryFromAllRecordings() async {
+        let combined = note.combinedTranscript
+        guard !combined.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
+        isSummarizing = true
+        let structured = await SummarizationService.shared.generateStructuredSummary(combined)
+        note.summary = structured.summary
+        note.keyHighlights = structured.keyHighlights
+        note.actionItemTexts = structured.actionItems
+        note.actionItemDone = Array(repeating: false, count: structured.actionItems.count)
+        isSummarizing = false
+        try? modelContext.save()
     }
 
     // MARK: - Summary block (paragraph)
@@ -531,8 +665,8 @@ struct NoteDetailView: View {
                         Label("Copy Summary", systemImage: "doc.on.doc")
                     }
                 }
-                if let transcript = note.transcript {
-                    Button { copy(transcript, label: "Transcript") } label: {
+                if !note.combinedTranscript.isEmpty {
+                    Button { copy(note.combinedTranscript, label: "Transcript") } label: {
                         Label("Copy Transcript", systemImage: "doc.on.clipboard")
                     }
                 }
@@ -598,7 +732,7 @@ struct NoteDetailView: View {
                 (i.offset < note.actionItemDone.count && note.actionItemDone[i.offset] ? "☑ " : "☐ ") + note.actionItemTexts[i.offset]
             }.joined(separator: "\n"))
         }
-        if let t = note.transcript { parts.append("Transcript:\n\(t)") }
+        if !note.combinedTranscript.isEmpty { parts.append("Transcript:\n\(note.combinedTranscript)") }
         if let w = note.writtenContent { parts.append("Note:\n\(w)") }
         return parts.joined(separator: "\n\n")
     }
