@@ -9,7 +9,7 @@ struct NotesListView: View {
     @State private var searchText = ""
     @State private var selectedNote: VoiceNote?
     @State private var showRecordingSavedToast = false
-    @State private var noteToOpenAfterWrite: VoiceNote?
+    @State private var activeRecordingNote: VoiceNote?
     @State private var audioService = AudioService()
 
     private var filteredNotes: [VoiceNote] {
@@ -68,10 +68,22 @@ struct NotesListView: View {
             .navigationTitle("Notes")
             .searchable(text: $searchText, prompt: "Search notes")
             .fullScreenCover(isPresented: $showRecording) {
-                RecordingView(dismissAfterSave: true) { recording in
-                    createVoiceNote(from: recording)
-                    showRecording = false
-                }
+                RecordingView(
+                    dismissAfterSave: true,
+                    onFileCreated: { fileName in
+                        activeRecordingNote = createDraftVoiceNote(fileName: fileName)
+                    },
+                    onCancel: { _ in
+                        if let activeRecordingNote {
+                            deleteNote(activeRecordingNote)
+                        }
+                        activeRecordingNote = nil
+                    },
+                    onSave: { recording in
+                        finalizeVoiceNote(from: recording)
+                        showRecording = false
+                    }
+                )
             }
             .overlay(alignment: .top) {
                 if showRecordingSavedToast {
@@ -83,16 +95,9 @@ struct NotesListView: View {
             .safeAreaInset(edge: .bottom, spacing: 0) {
                 recordAndWriteButton
             }
-            .sheet(isPresented: $showWriteNote, onDismiss: {
-                if let note = noteToOpenAfterWrite {
-                    withAnimation(.easeInOut(duration: 0.25)) {
-                        selectedNote = note
-                    }
-                    noteToOpenAfterWrite = nil
-                }
-            }) {
+            .sheet(isPresented: $showWriteNote) {
                 WriteNoteView { title, body, imageFileNames in
-                    noteToOpenAfterWrite = createWrittenNote(title: title, body: body, imageFileNames: imageFileNames)
+                    createWrittenNote(title: title, body: body, imageFileNames: imageFileNames)
                 }
             }
             .navigationDestination(item: $selectedNote) { note in
@@ -312,6 +317,7 @@ struct NotesListView: View {
             try? FileManager.default.removeItem(at: docs.appendingPathComponent(name))
         }
         withAnimation { modelContext.delete(note) }
+        try? modelContext.save()
     }
 
     private func togglePin(_ note: VoiceNote) {
@@ -319,19 +325,33 @@ struct NotesListView: View {
         try? modelContext.save()
     }
 
-    private func createVoiceNote(from recording: (fileName: String, duration: TimeInterval)) {
+    private func createDraftVoiceNote(fileName: String) -> VoiceNote {
         let note = VoiceNote(
-            title: "New Recording",
-            audioFileName: recording.fileName,
-            duration: recording.duration
+            title: "Recording...",
+            audioFileName: fileName,
+            duration: 0
         )
         modelContext.insert(note)
-        do {
-            try modelContext.save()
-        } catch {
-            // If save fails (e.g. schema), note may still appear in memory
+        try? modelContext.save()
+        return note
+    }
+
+    private func finalizeVoiceNote(from recording: (fileName: String, duration: TimeInterval)) {
+        let note: VoiceNote
+        if let activeRecordingNote {
+            note = activeRecordingNote
+            note.duration = recording.duration
+            note.title = "New Recording"
+        } else {
+            note = VoiceNote(
+                title: "New Recording",
+                audioFileName: recording.fileName,
+                duration: recording.duration
+            )
+            modelContext.insert(note)
         }
-        selectedNote = note
+        activeRecordingNote = nil
+        try? modelContext.save()
         showRecordingSavedToast = true
         Task { await processVoiceNote(note) }
         DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {

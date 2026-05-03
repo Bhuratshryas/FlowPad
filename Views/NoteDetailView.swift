@@ -97,6 +97,7 @@ struct NoteDetailView: View {
         }
         .onDisappear {
             audioService.stopPlayback()
+            try? modelContext.save()
         }
     }
 
@@ -560,6 +561,7 @@ struct NoteDetailView: View {
                     let isDone = index < note.actionItemDone.count ? note.actionItemDone[index] : false
                     Button {
                         note.toggleActionItemDone(at: index)
+                        try? modelContext.save()
                     } label: {
                         HStack(alignment: .center, spacing: 12) {
                             Image(systemName: isDone ? "checkmark.circle.fill" : "circle")

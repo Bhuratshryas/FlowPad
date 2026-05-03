@@ -9,7 +9,10 @@ struct RecordingView: View {
 
     /// If true, parent will dismiss by setting the binding; don't call dismiss() after onSave.
     var dismissAfterSave: Bool = false
+    var onFileCreated: ((_ fileName: String) -> Void)? = nil
+    var onCancel: ((_ fileName: String) -> Void)? = nil
     var onSave: ((_ recording: (fileName: String, duration: TimeInterval)) -> Void)
+    @State private var currentFileName: String?
 
     var body: some View {
         ZStack {
@@ -60,6 +63,9 @@ struct RecordingView: View {
         HStack {
             Button {
                 if isRecording {
+                    if let currentFileName {
+                        onCancel?(currentFileName)
+                    }
                     audioService.cancelRecording()
                 }
                 dismiss()
@@ -169,7 +175,9 @@ struct RecordingView: View {
                     audioService.pauseRecording()
                 }
             } else {
-                audioService.startRecording()
+                let fileName = audioService.startRecording()
+                currentFileName = fileName
+                onFileCreated?(fileName)
                 isRecording = true
             }
         } label: {
