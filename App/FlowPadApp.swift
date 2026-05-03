@@ -18,6 +18,6 @@ struct FlowPadApp: App {
             NotesListView()
                 .preferredColorScheme(.light)
         }
-        .modelContainer(for: VoiceNote.self)
+        .modelContainer(for: [VoiceNote.self, NoteChatEntry.self])
     }
 }
