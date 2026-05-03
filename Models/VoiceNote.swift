@@ -70,7 +70,7 @@ final class VoiceNote {
         self.attachedImageFileNames = attachedImageFileNames
         self.isPinned = isPinned
         self.createdAt = Date()
-        self.isProcessing = writtenContent != nil ? false : true
+        self.isProcessing = !audioFileName.isEmpty
         self.chatEntries = []
     }
 

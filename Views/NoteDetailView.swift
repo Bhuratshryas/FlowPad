@@ -47,7 +47,7 @@ struct NoteDetailView: View {
                     userSummaryAdditionsSection
                     divider
                 }
-                if !note.isProcessing && hasContentForSummary && (note.summary == nil || note.summary?.isEmpty == true) {
+                if allowsSummaryTools && !note.isProcessing && hasContentForSummary && (note.summary == nil || note.summary?.isEmpty == true) {
                     generateSummarySection
                     divider
                 }
@@ -172,7 +172,7 @@ struct NoteDetailView: View {
                 .foregroundStyle(AppTheme.textPrimary)
                 .focused($titleFocused)
                 .submitLabel(.done)
-            if let content = note.contentForSummary, !content.isEmpty, !note.isProcessing {
+            if allowsSummaryTools, let content = note.contentForSummary, !content.isEmpty, !note.isProcessing {
                 Button {
                     suggestTitle()
                 } label: {
@@ -202,8 +202,12 @@ struct NoteDetailView: View {
         return true
     }
 
+    private var allowsSummaryTools: Bool {
+        note.hasAudio || !note.combinedTranscript.isEmpty
+    }
+
     private var showUserSummaryAdditionsSection: Bool {
-        hasContentForSummary || !note.userSummaryAdditions.isEmpty
+        allowsSummaryTools && (hasContentForSummary || !note.userSummaryAdditions.isEmpty)
     }
 
     private func suggestTitle() {
@@ -491,7 +495,7 @@ struct NoteDetailView: View {
             HStack {
                 sectionHeader("Summary", icon: "sparkles")
                 Spacer()
-                if !isSummarizing && hasContentForSummary {
+                if allowsSummaryTools && !isSummarizing && hasContentForSummary {
                     Button {
                         generateSummary()
                     } label: {

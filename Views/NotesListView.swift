@@ -11,11 +11,19 @@ struct NotesListView: View {
     @State private var showRecordingSavedToast = false
     @State private var activeRecordingNote: VoiceNote?
     @State private var noteToOpenAfterSave: VoiceNote?
+    @State private var recentlySavedNotes: [VoiceNote] = []
     @State private var audioService = AudioService()
 
+    private var homepageNotes: [VoiceNote] {
+        var seen = Set<UUID>()
+        return (notes + recentlySavedNotes)
+            .filter { seen.insert($0.id).inserted }
+            .sorted { $0.createdAt > $1.createdAt }
+    }
+
     private var filteredNotes: [VoiceNote] {
-        guard !searchText.isEmpty else { return notes }
-        return notes.filter {
+        guard !searchText.isEmpty else { return homepageNotes }
+        return homepageNotes.filter {
             $0.title.localizedCaseInsensitiveContains(searchText)
                 || ($0.summary ?? "").localizedCaseInsensitiveContains(searchText)
                 || ($0.transcript ?? "").localizedCaseInsensitiveContains(searchText)
@@ -57,7 +65,7 @@ struct NotesListView: View {
     var body: some View {
         NavigationStack {
             Group {
-                if notes.isEmpty {
+                if homepageNotes.isEmpty {
                     emptyStateView
                 } else {
                     notesList
@@ -310,6 +318,7 @@ struct NotesListView: View {
     // MARK: - Actions
 
     private func deleteNote(_ note: VoiceNote) {
+        recentlySavedNotes.removeAll { $0.id == note.id }
         for item in note.allRecordingURLsAndDurations {
             try? FileManager.default.removeItem(at: item.url)
         }
@@ -334,6 +343,7 @@ struct NotesListView: View {
         )
         modelContext.insert(note)
         try? modelContext.save()
+        rememberNoteOnHomepage(note)
         return note
     }
 
@@ -353,6 +363,7 @@ struct NotesListView: View {
         }
         activeRecordingNote = nil
         try? modelContext.save()
+        rememberNoteOnHomepage(note)
         noteToOpenAfterSave = note
         showRecordingSavedToast = true
         Task { await processVoiceNote(note) }
@@ -381,10 +392,16 @@ struct NotesListView: View {
         modelContext.insert(note)
         do {
             try modelContext.save()
+            rememberNoteOnHomepage(note)
             return note
         } catch {
             return nil
         }
+    }
+
+    private func rememberNoteOnHomepage(_ note: VoiceNote) {
+        recentlySavedNotes.removeAll { $0.id == note.id }
+        recentlySavedNotes.insert(note, at: 0)
     }
 
     @MainActor
@@ -406,6 +423,7 @@ struct NotesListView: View {
             note.isProcessing = false
         }
         try? modelContext.save()
+        rememberNoteOnHomepage(note)
     }
 
     private func generateTitle(from text: String) -> String {
