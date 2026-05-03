@@ -10,6 +10,7 @@ struct NotesListView: View {
     @State private var selectedNote: VoiceNote?
     @State private var showRecordingSavedToast = false
     @State private var activeRecordingNote: VoiceNote?
+    @State private var noteToOpenAfterSave: VoiceNote?
     @State private var audioService = AudioService()
 
     private var filteredNotes: [VoiceNote] {
@@ -67,7 +68,7 @@ struct NotesListView: View {
             .toolbarColorScheme(.light, for: .navigationBar)
             .navigationTitle("Notes")
             .searchable(text: $searchText, prompt: "Search notes")
-            .fullScreenCover(isPresented: $showRecording) {
+            .fullScreenCover(isPresented: $showRecording, onDismiss: openPendingSavedNote) {
                 RecordingView(
                     dismissAfterSave: true,
                     onFileCreated: { fileName in
@@ -95,9 +96,9 @@ struct NotesListView: View {
             .safeAreaInset(edge: .bottom, spacing: 0) {
                 recordAndWriteButton
             }
-            .sheet(isPresented: $showWriteNote) {
+            .sheet(isPresented: $showWriteNote, onDismiss: openPendingSavedNote) {
                 WriteNoteView { title, body, imageFileNames in
-                    createWrittenNote(title: title, body: body, imageFileNames: imageFileNames)
+                    noteToOpenAfterSave = createWrittenNote(title: title, body: body, imageFileNames: imageFileNames)
                 }
             }
             .navigationDestination(item: $selectedNote) { note in
@@ -352,10 +353,21 @@ struct NotesListView: View {
         }
         activeRecordingNote = nil
         try? modelContext.save()
+        noteToOpenAfterSave = note
         showRecordingSavedToast = true
         Task { await processVoiceNote(note) }
         DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
             showRecordingSavedToast = false
+        }
+    }
+
+    private func openPendingSavedNote() {
+        guard let noteToOpenAfterSave else { return }
+        self.noteToOpenAfterSave = nil
+        DispatchQueue.main.async {
+            withAnimation(.easeInOut(duration: 0.25)) {
+                selectedNote = noteToOpenAfterSave
+            }
         }
     }
 
