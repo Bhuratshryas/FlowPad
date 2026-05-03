@@ -16,6 +16,8 @@ final class VoiceNote {
     var summary: String?
     /// Key highlights (bullets). Optional for migration from older records.
     var keyHighlights: [String]
+    /// Extra summary points the user added (not overwritten by regenerate).
+    var userSummaryAdditions: [String]
     /// Action item text.
     var actionItemTexts: [String]
     /// Completed state for each action item.
@@ -31,6 +33,9 @@ final class VoiceNote {
     var additionalDurations: [TimeInterval]?
     var isProcessing: Bool
 
+    @Relationship(deleteRule: .cascade, inverse: \NoteChatEntry.note)
+    var chatEntries: [NoteChatEntry]
+
     init(
         title: String = "New Note",
         audioFileName: String = "",
@@ -41,6 +46,7 @@ final class VoiceNote {
         additionalTranscripts: [String]? = nil,
         summary: String? = nil,
         keyHighlights: [String] = [],
+        userSummaryAdditions: [String] = [],
         actionItemTexts: [String] = [],
         actionItemDone: [Bool] = [],
         writtenContent: String? = nil,
@@ -57,6 +63,7 @@ final class VoiceNote {
         self.additionalTranscripts = additionalTranscripts ?? []
         self.summary = summary
         self.keyHighlights = keyHighlights
+        self.userSummaryAdditions = userSummaryAdditions
         self.actionItemTexts = actionItemTexts
         self.actionItemDone = actionItemDone
         self.writtenContent = writtenContent
@@ -64,6 +71,7 @@ final class VoiceNote {
         self.isPinned = isPinned
         self.createdAt = Date()
         self.isProcessing = writtenContent != nil ? false : true
+        self.chatEntries = []
     }
 
     func imageURLs(in documentsURL: URL) -> [URL] {
@@ -136,4 +144,11 @@ final class VoiceNote {
         guard index >= 0, index < actionItemDone.count else { return }
         actionItemDone[index].toggle()
     }
+
+    /// Persisted “Ask about this note” turns, oldest first.
+    var sortedChatEntries: [NoteChatEntry] {
+        chatEntries.sorted { $0.createdAt < $1.createdAt }
+    }
+
+    var hasChatHistory: Bool { !chatEntries.isEmpty }
 }

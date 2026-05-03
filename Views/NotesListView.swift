@@ -19,6 +19,7 @@ struct NotesListView: View {
                 || ($0.summary ?? "").localizedCaseInsensitiveContains(searchText)
                 || ($0.transcript ?? "").localizedCaseInsensitiveContains(searchText)
                 || ($0.writtenContent ?? "").localizedCaseInsensitiveContains(searchText)
+                || $0.chatEntries.contains { $0.text.localizedCaseInsensitiveContains(searchText) }
         }
     }
 
@@ -303,8 +304,8 @@ struct NotesListView: View {
     // MARK: - Actions
 
     private func deleteNote(_ note: VoiceNote) {
-        if note.hasAudio, let url = note.audioURL {
-            try? FileManager.default.removeItem(at: url)
+        for item in note.allRecordingURLsAndDurations {
+            try? FileManager.default.removeItem(at: item.url)
         }
         let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
         for name in note.attachedImageFileNames {
@@ -356,7 +357,11 @@ struct NotesListView: View {
 
     @MainActor
     private func processVoiceNote(_ note: VoiceNote) async {
-        guard await TranscriptionService.shared.requestAuthorization() else { note.isProcessing = false; return }
+        guard await TranscriptionService.shared.requestAuthorization() else {
+            note.isProcessing = false
+            try? modelContext.save()
+            return
+        }
         do {
             guard let url = note.audioURL else { note.isProcessing = false; return }
             let transcript = try await TranscriptionService.shared.transcribe(audioURL: url)
@@ -429,6 +434,17 @@ struct NoteRowView: View {
                     .lineSpacing(2)
                     .lineLimit(2)
             }
+            if note.hasChatHistory {
+                HStack(spacing: 6) {
+                    Image(systemName: "bubble.left.and.bubble.right.fill")
+                        .font(.system(size: 11, weight: .medium))
+                        .foregroundStyle(AppTheme.accent.opacity(0.85))
+                    Text(chatHomeLabel)
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundStyle(AppTheme.textTertiary)
+                }
+                .padding(.top, previewText.isEmpty ? 0 : 2)
+            }
             HStack(spacing: 0) {
                 Text(note.formattedDate)
                     .font(.system(size: 13, weight: .regular))
@@ -442,6 +458,12 @@ struct NoteRowView: View {
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 14)
+    }
+
+    private var chatHomeLabel: String {
+        let n = note.chatEntries.count
+        if n == 1 { return "Chat saved · 1 message" }
+        return "Chat saved · \(n) messages"
     }
 
     private func cleanPreview(_ text: String) -> String {

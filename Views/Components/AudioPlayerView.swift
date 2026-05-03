@@ -33,6 +33,23 @@ struct AudioPlayerView: View {
 
                 Spacer()
 
+                Button {
+                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                    audioService.cyclePlaybackSpeed()
+                } label: {
+                    Text(audioService.playbackRate >= 1.75 ? "2×" : "1×")
+                        .font(.caption.weight(.semibold).monospacedDigit())
+                        .foregroundStyle(AppTheme.accent)
+                        .frame(minWidth: 28)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(
+                            Capsule(style: .continuous)
+                                .fill(AppTheme.accent.opacity(0.12))
+                        )
+                }
+                .buttonStyle(.plain)
+
                 Text(formatTime(duration))
                     .font(.caption.monospacedDigit())
                     .foregroundStyle(AppTheme.textSecondary)

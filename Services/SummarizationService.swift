@@ -11,6 +11,7 @@ struct StructuredSummary {
 
 final class SummarizationService: @unchecked Sendable {
     static let shared = SummarizationService()
+    private let llmChunkCharacterLimit = 3500
 
     private init() {}
 
@@ -105,10 +106,46 @@ final class SummarizationService: @unchecked Sendable {
 
             Output nothing else. No extra text before or after these sections.
             """)
+        let chunks = chunkText(text, maxCharacters: llmChunkCharacterLimit)
+        if chunks.count <= 1 {
+            return await generateStructuredSummaryChunkWithLLM(text, instructions: instructions)
+        }
+
+        var chunkOutputs: [String] = []
+        for chunk in chunks {
+            if let partial = await generateStructuredSummaryChunkWithLLM(chunk, instructions: instructions) {
+                var block = "SUMMARY: \(partial.summary)"
+                if !partial.keyHighlights.isEmpty {
+                    block += "\nKEY HIGHLIGHTS:\n" + partial.keyHighlights.map { "• \($0)" }.joined(separator: "\n")
+                }
+                if !partial.actionItems.isEmpty {
+                    block += "\nACTION ITEMS:\n" + partial.actionItems.map { "• \($0)" }.joined(separator: "\n")
+                }
+                chunkOutputs.append(block)
+            }
+        }
+
+        guard !chunkOutputs.isEmpty else {
+            return nil
+        }
+
+        let combinedPrompt = """
+        Combine the following chunk-level summaries into one final summary for the complete note.
+        Keep all important decisions, commitments, and action items.
+
+        \(chunkOutputs.joined(separator: "\n\n---\n\n"))
+        """
+        return await generateStructuredSummaryChunkWithLLM(combinedPrompt, instructions: instructions)
+    }
+
+    @available(iOS 26.0, *)
+    private func generateStructuredSummaryChunkWithLLM(
+        _ text: String,
+        instructions: Instructions
+    ) async -> StructuredSummary? {
         let session = LanguageModelSession(instructions: instructions)
-        let input = String(text.prefix(4000))
         do {
-            let response = try await session.respond(to: input)
+            let response = try await session.respond(to: text)
             return parseStructuredOutput(response.content)
         } catch {
             return nil
@@ -175,7 +212,7 @@ final class SummarizationService: @unchecked Sendable {
             You answer the user's question about the following note. Use only the note content below. Be concise and helpful (1–4 sentences). If the note doesn't contain enough information, say so briefly.
             """)
         let session = LanguageModelSession(instructions: instructions)
-        let prompt = "Note:\n\(String(context.prefix(4000)))\n\nQuestion: \(question)"
+        let prompt = "Note:\n\(String(context.prefix(12000)))\n\nQuestion: \(question)"
         do {
             let response = try await session.respond(to: prompt)
             return response.content.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -339,5 +376,42 @@ final class SummarizationService: @unchecked Sendable {
             .filter { !$0.isEmpty && !stopWords.contains($0) }
         guard !words.isEmpty else { return 0 }
         return words.reduce(0.0) { $0 + Double(frequencies[$1] ?? 0) } / Double(words.count)
+    }
+
+    private func chunkText(_ text: String, maxCharacters: Int) -> [String] {
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard trimmed.count > maxCharacters else { return [trimmed] }
+
+        func splitOversized(_ s: String) -> [String] {
+            guard s.count > maxCharacters else { return [s] }
+            var out: [String] = []
+            var i = s.startIndex
+            while i < s.endIndex {
+                let j = s.index(i, offsetBy: maxCharacters, limitedBy: s.endIndex) ?? s.endIndex
+                let part = String(s[i..<j]).trimmingCharacters(in: .whitespacesAndNewlines)
+                if !part.isEmpty { out.append(part) }
+                i = j
+            }
+            return out.isEmpty ? [String(s.prefix(maxCharacters))] : out
+        }
+
+        var chunks: [String] = []
+        var current = ""
+        for sentence in splitSentences(trimmed) {
+            for piece in splitOversized(sentence) {
+                if current.isEmpty {
+                    current = piece
+                    continue
+                }
+                if current.count + piece.count + 1 <= maxCharacters {
+                    current += " " + piece
+                } else {
+                    chunks.append(current)
+                    current = piece
+                }
+            }
+        }
+        if !current.isEmpty { chunks.append(current) }
+        return chunks
     }
 }

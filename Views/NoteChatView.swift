@@ -1,4 +1,5 @@
 import Combine
+import SwiftData
 import SwiftUI
 
 // MARK: - Keyboard observer (for input bar placement)
@@ -27,30 +28,24 @@ private final class KeyboardObserver: ObservableObject {
 
 // MARK: - Chat
 
-struct ChatMessage: Identifiable {
-    let id = UUID()
-    let isUser: Bool
-    let text: String
-}
-
 struct NoteChatView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var modelContext
+    @Bindable var note: VoiceNote
     @StateObject private var keyboard = KeyboardObserver()
-    let noteTitle: String
     let context: String
-    @State private var messages: [ChatMessage] = []
     @State private var inputText = ""
     @State private var isWaiting = false
     @FocusState private var inputFocused: Bool
 
+    private var messages: [NoteChatEntry] { note.sortedChatEntries }
+
     var body: some View {
         NavigationStack {
             ZStack(alignment: .bottom) {
-                // Messages: full area with bottom space for input + keyboard
                 messagesScroll
                     .padding(.bottom, inputBarHeight + keyboard.height)
 
-                // Input bar: fixed just above the keyboard (we control position; no system avoidance)
                 inputBar
                     .padding(.bottom, keyboard.height)
             }
@@ -80,7 +75,7 @@ struct NoteChatView: View {
                     if messages.isEmpty {
                         emptyState
                     }
-                    ForEach(messages) { msg in
+                    ForEach(messages, id: \.id) { msg in
                         messageRow(msg)
                             .id(msg.id)
                     }
@@ -98,14 +93,21 @@ struct NoteChatView: View {
                 if newCount > 0 { scrollToEnd(proxy: proxy) }
             }
             .onChange(of: isWaiting) { _, waiting in
-                // When answer arrives (isWaiting → false), scroll to show it
                 if !waiting { scrollToEnd(proxy: proxy) }
+            }
+            .onAppear {
+                if let last = messages.last {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                        withAnimation(.easeOut(duration: 0.2)) {
+                            proxy.scrollTo(last.id, anchor: .bottom)
+                        }
+                    }
+                }
             }
         }
     }
 
     private func scrollToEnd(proxy: ScrollViewProxy) {
-        // Slight delay so new message is laid out; keeps answer visible (ChatGPT-style)
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
             withAnimation(.easeOut(duration: 0.25)) {
                 if let last = messages.last {
@@ -124,7 +126,7 @@ struct NoteChatView: View {
                 Text("Ask about this note")
                     .font(.headline.weight(.semibold))
                     .foregroundStyle(AppTheme.textPrimary)
-                Text("Get answers from the summary, transcript, and written content.")
+                Text("Get answers from the summary, transcript, and written content. Your conversation is saved with this note.")
                     .font(.subheadline)
                     .foregroundStyle(AppTheme.textSecondary)
                     .multilineTextAlignment(.center)
@@ -134,7 +136,7 @@ struct NoteChatView: View {
         .padding(.vertical, 56)
     }
 
-    private func messageRow(_ msg: ChatMessage) -> some View {
+    private func messageRow(_ msg: NoteChatEntry) -> some View {
         HStack(alignment: .top, spacing: 10) {
             if msg.isUser { Spacer(minLength: 48) }
             if !msg.isUser {
@@ -238,16 +240,21 @@ struct NoteChatView: View {
         let text = inputText.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !text.isEmpty else { return }
         inputText = ""
-        messages.append(ChatMessage(isUser: true, text: text))
+        let userEntry = NoteChatEntry(note: note, isUser: true, text: text)
+        modelContext.insert(userEntry)
+        try? modelContext.save()
         isWaiting = true
-        // Dismiss keyboard so user can read the question; keep it dismissed when answer arrives
         inputFocused = false
         Task {
             let answer = await SummarizationService.shared.ask(question: text, context: context)
             await MainActor.run {
-                messages.append(ChatMessage(isUser: false, text: answer))
+                let replyText = answer.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+                    ? "No response was returned."
+                    : answer
+                let reply = NoteChatEntry(note: note, isUser: false, text: replyText)
+                modelContext.insert(reply)
+                try? modelContext.save()
                 isWaiting = false
-                // Keep keyboard closed so the answer stays visible (ChatGPT-style)
                 inputFocused = false
             }
         }

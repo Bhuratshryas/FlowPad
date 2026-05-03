@@ -9,6 +9,8 @@ final class AudioService: NSObject, @unchecked Sendable {
     var recordingTime: TimeInterval = 0
     var currentPlaybackTime: TimeInterval = 0
     var meterLevel: Float = 0
+    /// Playback speed for the next play and for the current `AVAudioPlayer` when playing (1 or 2).
+    var playbackRate: Float = 1.0
 
     private var audioRecorder: AVAudioRecorder?
     private var audioPlayer: AVAudioPlayer?
@@ -151,9 +153,12 @@ final class AudioService: NSObject, @unchecked Sendable {
             let player = try AVAudioPlayer(contentsOf: url)
             audioPlayer = player
             player.delegate = self
+            player.enableRate = true
             player.prepareToPlay()
+            player.rate = playbackRate
             if !player.play() {
                 print("Playback failed: play() returned false")
+                audioPlayer = nil
                 return
             }
             playbackURL = url
@@ -199,6 +204,12 @@ final class AudioService: NSObject, @unchecked Sendable {
         }
     }
 
+    /// Toggle between 1× and 2×; applies immediately if something is playing.
+    func cyclePlaybackSpeed() {
+        playbackRate = playbackRate >= 1.75 ? 1.0 : 2.0
+        audioPlayer?.rate = playbackRate
+    }
+
     var playbackProgress: Double {
         guard let player = audioPlayer, player.duration > 0 else { return 0 }
         return player.currentTime / player.duration
@@ -207,7 +218,7 @@ final class AudioService: NSObject, @unchecked Sendable {
     // MARK: - Timers
 
     private func beginMeterUpdates() {
-        meterTimer = Timer.scheduledTimer(withTimeInterval: 0.04, repeats: true) { [weak self] _ in
+        let timer = Timer.scheduledTimer(withTimeInterval: 0.04, repeats: true) { [weak self] _ in
             guard let self, let recorder = self.audioRecorder else { return }
             recorder.updateMeters()
             let power = recorder.averagePower(forChannel: 0)
@@ -217,6 +228,8 @@ final class AudioService: NSObject, @unchecked Sendable {
                 self.recordingTime = self.accumulatedRecordingTime + Date().timeIntervalSince(start)
             }
         }
+        RunLoop.main.add(timer, forMode: .common)
+        meterTimer = timer
     }
 
     private func beginPlaybackUpdates() {
