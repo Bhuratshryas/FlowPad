@@ -19,8 +19,8 @@
 		APPTH3M3SW1FT0000000001 /* AppTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = APPTH3M3SW1FT0000000002 /* AppTheme.swift */; };
 		BCB28738D5F42C1BE6D8550A /* AudioService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 218582E829862287C687F845 /* AudioService.swift */; };
 		C1371151EC46C7D822124C43 /* VoiceNote.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CC756F12C9A0E0A619D5081 /* VoiceNote.swift */; };
-		N7CH4T3NTR70000000000001 /* NoteChatEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = N7CH4T3NTR70000000000002 /* NoteChatEntry.swift */; };
 		N0T3CH4T000000000000001 /* NoteChatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = N0T3CH4T000000000000002 /* NoteChatView.swift */; };
+		N7CH4T3NTR70000000000001 /* NoteChatEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = N7CH4T3NTR70000000000002 /* NoteChatEntry.swift */; };
 		W1R1T3N0T3V1EW000001 /* WriteNoteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = W1R1T3N0T3V1EW000002 /* WriteNoteView.swift */; };
 /* End PBXBuildFile section */
 
@@ -31,7 +31,6 @@
 		2A7D4680735516B8D845E0B6 /* WaveformView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaveformView.swift; sourceTree = "<group>"; };
 		33CC2D926B96F20414369CAF /* FlowPadApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlowPadApp.swift; sourceTree = "<group>"; };
 		4CC756F12C9A0E0A619D5081 /* VoiceNote.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceNote.swift; sourceTree = "<group>"; };
-		N7CH4T3NTR70000000000002 /* NoteChatEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteChatEntry.swift; sourceTree = "<group>"; };
 		5BDAC3F62372DF63D0FCB050 /* NoteDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteDetailView.swift; sourceTree = "<group>"; };
 		821AF14F9529C4F915F93DC8 /* SummarizationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SummarizationService.swift; sourceTree = "<group>"; };
 		A55ET5C4T5C4T5L06000002 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -40,6 +39,7 @@
 		C66A58592478B4F71FC57A05 /* TranscriptionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptionService.swift; sourceTree = "<group>"; };
 		D7A5D92C40DBDD4B8E4CCDDC /* RecordingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingView.swift; sourceTree = "<group>"; };
 		N0T3CH4T000000000000002 /* NoteChatView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteChatView.swift; sourceTree = "<group>"; };
+		N7CH4T3NTR70000000000002 /* NoteChatEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteChatEntry.swift; sourceTree = "<group>"; };
 		W1R1T3N0T3V1EW000002 /* WriteNoteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WriteNoteView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
